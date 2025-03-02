@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Form, Input, Button, message, Card, InputNumber } from "antd";
 import { Client } from "../Interfaces/Client";
 import { supabase } from "../supabaseClient";
-
+//Formulario Clientes
 const ClientsForm = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
