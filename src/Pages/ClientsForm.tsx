@@ -22,56 +22,56 @@ const ClientsForm = () => {
   };
 
   return (
-    <Card title="Agregar Cliente" style={{ width: 400, margin: "20px auto" }}>
+    <Card title="Add Client" style={{ width: 400, margin: "20px auto" }}>
       <Form<Client> layout="vertical" onFinish={onFinish}>
         {/* Campo para el nombre */}
         <Form.Item
-          label="Nombre"
+          label="Name"
           name="name"
-          rules={[{ required: true, message: "Por favor ingresa el nombre" }]}
+          rules={[{ required: true, message: "Please enter the name" }]}
         >
-          <Input placeholder="Nombre" />
+          <Input placeholder="Name" />
         </Form.Item>
 
         {/* Campo para el apellido */}
         <Form.Item
-          label="Apellido"
+          label="Lastname"
           name="lastname"
-          rules={[{ required: true, message: "Por favor ingresa el apellido" }]}
+          rules={[{ required: true, message: "Please enter the last name" }]}
         >
-          <Input placeholder="Apellido" />
+          <Input placeholder="Lastname" />
         </Form.Item>
 
         {/* Campo para la edad (opcional) */}
-        <Form.Item label="Edad" name="age">
-          <InputNumber placeholder="Edad" min={0} style={{ width: "100%" }} />
+        <Form.Item label="Age" name="age">
+          <InputNumber placeholder="Age" min={0} style={{ width: "100%" }} />
         </Form.Item>
 
         {/* Campo para el correo electrónico */}
         <Form.Item
-          label="Correo electrónico"
+          label="Email"
           name="email"
           rules={[
-            { required: true, message: "Por favor ingresa el correo" },
-            { type: "email", message: "Correo no válido" },
+            { required: true, message: "Please enter the email" },
+            { type: "email", message: "Invalid email" },
           ]}
         >
-          <Input placeholder="Correo electrónico" />
+          <Input placeholder="Email" />
         </Form.Item>
 
         {/* Campo para la contraseña */}
         <Form.Item
-          label="Contraseña"
+          label="Password"
           name="password"
-          rules={[{ required: true, message: "Por favor ingresa la contraseña" }]}
+          rules={[{ required: true, message: "Please enter the password" }]}
         >
-          <Input.Password placeholder="Contraseña" />
+          <Input.Password placeholder="Password" />
         </Form.Item>
 
         {/* Botón de envío */}
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={loading} block>
-            Agregar Cliente
+            Add Client
           </Button>
         </Form.Item>
       </Form>
