@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Form, Input, Button, message, Card } from "antd";
 import { Consumer } from "../Interfaces/Consumer";
 import { supabase } from "../supabaseClient";
+
 
 const ConsumersForm = () => {
   const [loading, setLoading] = useState<boolean>(false);

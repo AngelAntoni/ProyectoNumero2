@@ -1,7 +1,4 @@
-
 import {useEffect, useState} from 'react';
-import Login from "../Login.tsx"; // Importa el componente Logind
-import Home from '../Interfaces/Home.tsx';   // Importa el componente Home
 import { Ticket } from '../Interfaces/Ticket.tsx';
 import { Sale } from '../Interfaces/Sale.tsx';
 import { DetailsSale } from '../Interfaces/Details_sale.tsx';
