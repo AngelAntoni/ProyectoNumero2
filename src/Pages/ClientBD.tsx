@@ -1,36 +1,101 @@
 import { useEffect, useState } from "react";
-import { Client } from "../Interfaces/Client.tsx";
-import { supabase } from "../supabaseClient.ts";
+import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
+import { Table, Button, Spin, message, Tag } from "antd";
+import type { ColumnsType } from 'antd/es/table';
+
+interface Client {
+  client_id: string;
+  name: string;
+  lastname: string;
+  age?: number | null;
+  email: string;
+  password?: string;
+}
 
 function ClientBD() {
-  const [clients, setClients] = useState<Client[]>([]);
+  const [client, setClient] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate(); 
-
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchClients = async () => {
       setLoading(true);
-      const { data, error } = await supabase.from("client").select("*");
+      try {
+        const { data, error } = await supabase
+          .from("client")
+          .select(`
+            client_id,
+            name,
+            lastname,
+            age,
+            email,
+            created_at
+          `)
+          .is('deleted_at', null); // Excluye clientes eliminados
 
-      if (error) {
-        console.error("Error loading clients:", error.message);
-      } else {
-        setClients(data);
+        if (error) throw error;
+
+        console.log("Datos recibidos:", data);
+        setClient(data || []);
+      } catch (error) {
+        console.error("Error completo:", error);
+        message.error("Error al cargar clientes");
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
     fetchClients();
   }, []);
 
+  const columns: ColumnsType<Client> = [
+    {
+      title: "ID Cliente",
+      dataIndex: "client_id",
+      key: "client_id",
+      render: (id) => <Tag color="blue">{id.substring(0, 8)}...</Tag>,
+    },
+    {
+      title: "Nombre Completo",
+      key: "full_name",
+      render: (_, record) => `${record.name} ${record.lastname}`,
+    },
+    {
+      title: "Edad",
+      dataIndex: "age",
+      key: "age",
+      render: (age) => age ?? <Tag color="gray">No especificado</Tag>,
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: "Registrado",
+      dataIndex: "created_at",
+      key: "created_at",
+      render: (date) => new Date(date).toLocaleDateString(),
+    },
+    {
+      title: "Acciones",
+      key: "actions",
+      render: (_, record) => (
+        <Button
+          type="primary"
+          onClick={() => navigate(`/TicketFinal?client_id=${record.client_id}`)}
+        >
+          Ver Detalles
+        </Button>
+      ),
+    },
+  ];
+
   return (
-    <div>
-      <h1>👨🏻‍💼  LIST OF CLIENTS</h1>
-      <button 
-        onClick={() => navigate(-1)} 
+    <div style={{ padding: "20px" }}>
+      <h1 style={{ textAlign: "center", marginBottom: "20px" }}>👨🏻‍💼 LISTA DE CLIENTES</h1>
+      <Button
+        onClick={() => navigate(-1)}
         style={{
           backgroundColor: "#0d0df3",
           color: "white",
@@ -38,28 +103,23 @@ function ClientBD() {
           padding: "10px 15px",
           borderRadius: "5px",
           cursor: "pointer",
-          marginBottom: "20px"
+          marginBottom: "20px",
         }}
       >
-        Go Back
-      </button>
+        Volver
+      </Button>
       {loading ? (
-        <p>Loading...</p>
-      ) : clients.length === 0 ? (
-        <p>There are no clients available.</p>
+        <Spin size="large" />
+      ) : client.length === 0 ? (
+        <p>No hay clientes disponibles.</p>
       ) : (
-        <ul>
-          {clients.map((client) => (
-            <li key={client.client_id}>
-                  <strong>Name of client:</strong> {client.name} <br />
-                  <strong>Last name client:</strong> {client.lastname || 'N/A'} <br />
-                  <strong>Client Age:</strong> {client.age} <br />
-                  <strong>Email:</strong> {client.email} <br />
-                  <strong>Password:</strong> {client.password} <br />
-              <br />
-            </li>
-          ))}
-        </ul>
+        <Table 
+          dataSource={client} 
+          columns={columns} 
+          rowKey="client_id"
+          pagination={{ pageSize: 5 }}
+          scroll={{ x: true }}
+        />
       )}
     </div>
   );

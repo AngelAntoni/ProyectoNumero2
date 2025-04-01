@@ -16,6 +16,8 @@ import DetailsDB from './Pages/DetailsBD';
 import ProductDB from './Pages/ProductBD';
 import SaleBD from './Pages/SaleBD';
 import TicketBD from './Pages/TicketBD';
+import Ticket1 from './Pages/Ticket1';
+
 
 // Componente principal App
 function App() {
@@ -23,6 +25,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/Tareas" element={<Welcome />} />
+        <Route path="/123" element={<Ticket1 />} />
         <Route path="/Agregar" element={<ClientsForm />} />
         <Route path="/Consumers" element={<ConsumerForm />} />
         <Route path="/Details" element={<DetailsForm />} />
@@ -38,7 +41,7 @@ function App() {
         <Route path="/SaleBD" element={<SaleBD />} />
         <Route path="/TicketBD" element={<TicketBD />} />
         <Route path="/TicketFinal" element={<TicketFinal client={{
-          name: '',
+          name: 'Hola',
           lastname: '',
           age: 0,
           email: ''

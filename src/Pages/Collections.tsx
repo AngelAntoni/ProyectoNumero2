@@ -8,8 +8,8 @@ const App: React.FC = () => (
   
 <div style={{
     position: 'absolute',
-    top: '50%',
-    left: '50%',
+    top: '40%',
+    left: '40%',
     transform: 'translate(-50%, -50%)',
   }}>
     <Title level={2} style={{color: "white", marginBottom: "20px",  }}>
@@ -17,7 +17,7 @@ const App: React.FC = () => (
     </Title>
     {
     <Space align="center">
-    <Row justify="center" gutter={16} style={{ maxWidth: "800px", margin: "0 auto" }}>
+    <Row justify="center" gutter={25} style={{ maxWidth: "900px", margin: "0 auto" }}>
     <Col span={8}>
       <Link to="/ClientBD">
         <Card title=" 👤 Clients" variant="borderless">
@@ -67,6 +67,15 @@ const App: React.FC = () => (
         </Card>
       </Link>
     </Col>
+    <Col span={8}>
+      <Link to="/123">
+        <Card title="Solicitud De Relleno" variant="borderless">
+          Press me
+        </Card>
+      </Link>
+    </Col>
+
+    
 
   </Row>
   </Space>
