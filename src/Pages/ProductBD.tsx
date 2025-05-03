@@ -7,8 +7,6 @@ function ProductDB() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate(); 
-
-
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -40,18 +38,34 @@ function ProductDB() {
       >
         Go Back
       </button>
-      {loading ? <p>Loading...</p> : products.length === 0 ? <p>No products available.</p> : (
-        <ul>
-          {products.map((product) => (
-            <li key={product.id}>
-              <strong>Name:</strong> {product.product_name} <br />
-              <strong>Description:</strong> {product.product_description || "N/A"} <br />
-              <strong>Price:</strong> ${product.product_price} <br />
-              <strong>Created At:</strong> {product.created_at} <br />
-              <strong>Deleted At:</strong> {product.deleted_at ? product.deleted_at : "Not deleted"} <br />
-            </li>
-          ))}
-        </ul>
+
+      {loading ? (
+        <p>Loading...</p>
+      ) : products.length === 0 ? (
+        <p>No products available.</p>
+      ) : (
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ backgroundColor: "#17202a" }}>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Name</th>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Description</th>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Price</th>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Created At</th>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Deleted At</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((product) => (
+              <tr key={product.id}>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{product.product_name}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{product.product_description || "N/A"}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>${product.product_price}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{product.created_at}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{product.deleted_at ? product.deleted_at : "Not deleted"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );

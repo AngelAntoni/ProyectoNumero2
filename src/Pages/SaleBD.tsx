@@ -8,7 +8,6 @@ function SaleBD() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate(); 
 
-
   useEffect(() => {
     const fetchSales = async () => {
       setLoading(true);
@@ -40,15 +39,28 @@ function SaleBD() {
       >
         Go Back
       </button>
-      {loading ? <p>Loading...</p> : sales.length === 0 ? <p>No sales available.</p> : (
-        <ul>
-          {sales.map((sale) => (
-            <li key={sale.id}>
-              <strong>Sale Date:</strong> {sale.sale_date} <br />
-              <strong>Total:</strong> ${sale.total} <br />
-            </li>
-          ))}
-        </ul>
+
+      {loading ? (
+        <p>Loading...</p>
+      ) : sales.length === 0 ? (
+        <p>No sales available.</p>
+      ) : (
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ backgroundColor: "#17202a" }}>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Sale Date</th>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sales.map((sale) => (
+              <tr key={sale.id}>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{sale.sale_date}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>${sale.total}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );

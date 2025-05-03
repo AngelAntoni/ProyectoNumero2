@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
-import { Table, Button, Spin, message, Tag } from "antd";
-import type { ColumnsType } from 'antd/es/table';
 
 interface Client {
   client_id: string;
@@ -10,19 +8,19 @@ interface Client {
   lastname: string;
   age?: number | null;
   email: string;
-  password?: string;
+  created_at?: string;
 }
 
 function ClientBD() {
   const [client, setClient] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
   useEffect(() => {
     const fetchClients = async () => {
       setLoading(true);
       try {
-        const { data, error } = await supabase
-          .from("client")
+        const { data, error } = await supabase.from("client")
           .select(`
             client_id,
             name,
@@ -31,15 +29,12 @@ function ClientBD() {
             email,
             created_at
           `)
-          .is('deleted_at', null); // Excluye clientes eliminados
+          .is("deleted_at", null);
 
         if (error) throw error;
-
-        console.log("Datos recibidos:", data);
         setClient(data || []);
       } catch (error) {
-        console.error("Error completo:", error);
-        message.error("Error al cargar clientes");
+        console.error("Error al cargar clientes:", error);
       } finally {
         setLoading(false);
       }
@@ -48,53 +43,10 @@ function ClientBD() {
     fetchClients();
   }, []);
 
-  const columns: ColumnsType<Client> = [
-    {
-      title: "ID Cliente",
-      dataIndex: "client_id",
-      key: "client_id",
-      render: (id) => <Tag color="blue">{id.substring(0, 8)}...</Tag>,
-    },
-    {
-      title: "Nombre Completo",
-      key: "full_name",
-      render: (_, record) => `${record.name} ${record.lastname}`,
-    },
-    {
-      title: "Edad",
-      dataIndex: "age",
-      key: "age",
-      render: (age) => age ?? <Tag color="gray">No especificado</Tag>,
-    },
-    {
-      title: "Email",
-      dataIndex: "email",
-      key: "email",
-    },
-    {
-      title: "Registrado",
-      dataIndex: "created_at",
-      key: "created_at",
-      render: (date) => new Date(date).toLocaleDateString(),
-    },
-    {
-      title: "Acciones",
-      key: "actions",
-      render: (_, record) => (
-        <Button
-          type="primary"
-          onClick={() => navigate(`/TicketFinal?client_id=${record.client_id}`)}
-        >
-          Ver Detalles
-        </Button>
-      ),
-    },
-  ];
-
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: "20px", backgroundColor: "#1a1a1a", color: "white", minHeight: "100vh" }}>
       <h1 style={{ textAlign: "center", marginBottom: "20px" }}>👨🏻‍💼 LISTA DE CLIENTES</h1>
-      <Button
+      <button
         onClick={() => navigate(-1)}
         style={{
           backgroundColor: "#0d0df3",
@@ -107,19 +59,51 @@ function ClientBD() {
         }}
       >
         Volver
-      </Button>
+      </button>
+
       {loading ? (
-        <Spin size="large" />
+        <p>Cargando...</p>
       ) : client.length === 0 ? (
         <p>No hay clientes disponibles.</p>
       ) : (
-        <Table 
-          dataSource={client} 
-          columns={columns} 
-          rowKey="client_id"
-          pagination={{ pageSize: 5 }}
-          scroll={{ x: true }}
-        />
+        <table style={{ width: "100%", borderCollapse: "collapse", backgroundColor: "#2b2b2b" }}>
+          <thead>
+            <tr style={{ backgroundColor: "#444", color: "#fff" }}>
+              <th style={{ padding: "10px", border: "1px solid #555" }}>ID Cliente</th>
+              <th style={{ padding: "10px", border: "1px solid #555" }}>Nombre Completo</th>
+              <th style={{ padding: "10px", border: "1px solid #555" }}>Edad</th>
+              <th style={{ padding: "10px", border: "1px solid #555" }}>Email</th>
+              <th style={{ padding: "10px", border: "1px solid #555" }}>Registrado</th>
+              <th style={{ padding: "10px", border: "1px solid #555" }}>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {client.map((c) => (
+              <tr key={c.client_id}>
+                <td style={{ padding: "10px", border: "1px solid #555" }}>{c.client_id.slice(0, 8)}...</td>
+                <td style={{ padding: "10px", border: "1px solid #555" }}>{c.name} {c.lastname}</td>
+                <td style={{ padding: "10px", border: "1px solid #555" }}>{c.age ?? "No especificado"}</td>
+                <td style={{ padding: "10px", border: "1px solid #555" }}>{c.email}</td>
+                <td style={{ padding: "10px", border: "1px solid #555" }}>{c.created_at ? new Date(c.created_at).toLocaleDateString() : "N/A"}</td>
+                <td style={{ padding: "10px", border: "1px solid #555" }}>
+                  <button
+                    onClick={() => navigate(`/TicketFinal?client_id=${c.client_id}`)}
+                    style={{
+                      backgroundColor: "#0d6efd",
+                      color: "white",
+                      border: "none",
+                      padding: "5px 10px",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Ver Detalles
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );

@@ -8,7 +8,6 @@ function DetailsDB() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate(); 
 
-
   useEffect(() => {
     const fetchDetailsSale = async () => {
       setLoading(true);
@@ -42,17 +41,29 @@ function DetailsDB() {
         Go Back
       </button>
 
-      {loading ? <p>Loading...</p> : detailsSale.length === 0 ? 
-      <p>No sale details available.</p> : (
-        <ul>
-          {detailsSale.map((detail) => (
-            <li key={detail.id}>
-              <strong>Amount:</strong> {detail.amount} <br />
-              <strong>Unit Price:</strong> ${detail.unit_price} <br />
-              <strong>Subtotal:</strong> ${detail.subtotal} <br />
-            </li>
-          ))}
-        </ul>
+      {loading ? (
+        <p>Loading...</p>
+      ) : detailsSale.length === 0 ? (
+        <p>No sale details available.</p>
+      ) : (
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ backgroundColor: "#17202a" }}>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Amount</th>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Unit Price</th>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {detailsSale.map((detail) => (
+              <tr key={detail.id}>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{detail.amount}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>${detail.unit_price}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>${detail.subtotal}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );

@@ -2,9 +2,13 @@ import React, { useState } from "react";
 import { Form, Input, Button, message, Card, InputNumber } from "antd";
 import { Client } from "../Interfaces/Client";
 import { supabase } from "../supabaseClient";
+import { Link, useNavigate } from "react-router-dom";
+
 //Formulario Clientes
 const ClientsForm = () => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [form] = Form.useForm<Client>();  
+  const navigate = useNavigate();         
 
   const onFinish = async (values: Client) => {
     setLoading(true);
@@ -19,6 +23,16 @@ const ClientsForm = () => {
     }
 
     setLoading(false);
+  };
+
+
+  const handleNext = async () => {
+    try {
+      await form.validateFields(); // Valida todos los campos
+      navigate("/collections");    // Si no hay errores, navega
+    } catch (error) {
+      message.warning("Por favor completa todos los campos requeridos");
+    }
   };
 
   return (
@@ -73,6 +87,14 @@ const ClientsForm = () => {
           <Button type="primary" htmlType="submit" loading={loading} block>
             Add Client
           </Button>
+        </Form.Item>
+
+        <Form.Item>
+          <Link to="/123">
+          <Button type="primary">
+            Siguiente
+          </Button>
+          </Link>
         </Form.Item>
       </Form>
     </Card>

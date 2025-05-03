@@ -35,6 +35,22 @@ interface CartItem {
   quantity: number;
 }
 
+interface TicketData {
+  client: {
+    name: string;
+    id: string;
+  };
+  products: Array<{
+    name: string;
+    price: number;
+    quantity: number;
+    subtotal: number;
+  }>;
+  total: number;
+  date: string;
+  saleId: string;
+}
+
 const Ticket1 = () => {
   const [clients, setClients] = useState<Client[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -115,8 +131,9 @@ const Ticket1 = () => {
     }
     try {
       const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const selectedClientData = clients.find(c => c.id === selectedClient);
       
-      // 1. Insertar la venta principal
+      
       const { data: saleData, error: saleError } = await supabase
         .from('sales')
         .insert({ 
@@ -129,11 +146,11 @@ const Ticket1 = () => {
       
       if (saleError) throw saleError;
 
-      // 2. Insertar los detalles de la venta en details_sale
+      
       const saleDetails = cart.map((item) => ({
         sale_id: saleData.id,
         product_id: item.id,
-        amount: item.quantity, // Usamos 'amount' en lugar de 'quantity' para coincidir con tu tabla
+        amount: item.quantity,
         unit_price: item.price,
         subtotal: item.price * item.quantity,
       }));
@@ -141,12 +158,32 @@ const Ticket1 = () => {
       const { error: detailsError } = await supabase.from('details_sale').insert(saleDetails);
       if (detailsError) throw detailsError;
 
-      message.success('Venta registrada y ticket generado');
-      setCart([]); // Limpiar el carrito después de la venta
+      
+      const ticketData: TicketData = {
+        client: {
+          name: `${selectedClientData?.name || ''} ${selectedClientData?.lastname || ''}`.trim(),
+          id: selectedClient
+        },
+        products: cart.map(item => ({
+          name: item.description,
+          price: item.price,
+          quantity: item.quantity,
+          subtotal: item.price * item.quantity
+        })),
+        total,
+        date: new Date().toLocaleString(),
+        saleId: saleData.id
+      };
+
+      
+      localStorage.setItem('currentTicket', JSON.stringify(ticketData));
       navigate('/TicketFinal');
+
+      message.success('Venta registrada correctamente');
+      setCart([]); 
     } catch (error) {
       message.error('Error al procesar la venta');
-      console.error('Error completo al generar ticket:', error);
+      console.error('Error al generar ticket:', error);
     }
   };
 
@@ -220,7 +257,14 @@ const Ticket1 = () => {
         <Table columns={productColumns} dataSource={products} rowKey="id" loading={loading.products} pagination={false} size="small" />
         <Divider orientation="left">Carrito de Compras</Divider>
         <Table columns={cartColumns} dataSource={cart} rowKey="id" pagination={false} footer={() => <div style={{ textAlign: 'right' }}><Title level={4}>Total: ${total.toFixed(2)}</Title></div>} />
-        <Button type="primary" icon={<PrinterOutlined />} onClick={generateTicket} block size="large">
+        <Button 
+          type="primary" 
+          icon={<PrinterOutlined />} 
+          onClick={generateTicket} 
+          block 
+          size="large"
+          loading={loading.clients || loading.products}
+        >
           GENERAR TICKET
         </Button>
       </Space>

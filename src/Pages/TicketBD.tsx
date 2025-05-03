@@ -13,7 +13,6 @@ function TicketBD() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate(); 
 
-
   useEffect(() => {
     const fetchTickets = async () => {
       setLoading(true);
@@ -47,24 +46,28 @@ function TicketBD() {
       >
         Go Back
       </button>
+
       {loading ? (
         <p>Loading...</p>
+      ) : tickets.length === 0 ? (
+        <p>There are no tickets.</p>
       ) : (
-        <>
-          {tickets.length === 0 ? (
-            <p>There are no tickets.</p>
-          ) : (
-            <ul>
-              {tickets.map((ticket) => (
-                <li key={ticket.id}>
-                  <strong>Issue date:</strong> {ticket.fecha_emision} <br />
-                  <strong>Content:</strong> {ticket.contenido} <br />
-                  <br />
-                </li>
-              ))}
-            </ul>
-          )}
-        </>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ backgroundColor: "#17202a" }}>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Issue Date</th>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Content</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tickets.map((ticket) => (
+              <tr key={ticket.id}>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{ticket.fecha_emision}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{ticket.contenido}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );

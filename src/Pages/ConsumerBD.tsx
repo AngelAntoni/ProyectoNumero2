@@ -8,7 +8,6 @@ function ConsumerBD() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate(); 
 
-
   useEffect(() => {
     const fetchConsumers = async () => {
       setLoading(true);
@@ -46,16 +45,26 @@ function ConsumerBD() {
       ) : consumers.length === 0 ? (
         <p>No consumers available.</p>
       ) : (
-        <ul>
-          {consumers.map((consumer) => (
-            <li key={consumer.consumer_id}>
-              <strong>Name of consumer:</strong> {consumer.name} <br />
-              <strong>Email:</strong> {consumer.email || "N/A"} <br />
-              <strong>Telephone:</strong> {consumer.telephone} <br />
-              <strong>Address:</strong> {consumer.address} <br />
-            </li>
-          ))}
-        </ul>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ backgroundColor: "#17202a" }}>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Name</th>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Email</th>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Telephone</th>
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>Address</th>
+            </tr>
+          </thead>
+          <tbody>
+            {consumers.map((consumer) => (
+              <tr key={consumer.consumer_id}>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{consumer.name}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{consumer.email || "N/A"}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{consumer.telephone}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{consumer.address}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );

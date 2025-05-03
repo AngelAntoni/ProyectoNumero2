@@ -1,143 +1,145 @@
-import React from "react";
-import { Card, Typography, Divider } from "antd";
+import React, { useEffect, useState, useRef } from 'react';
+import { Button, Typography, Table, Divider, Space, message } from 'antd';
+import { PrinterOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { useReactToPrint } from 'react-to-print';
+import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 
-interface TicketFinalProps {
-  client: {
-    name: string;
-    lastname: string;
-    age: number;
-    email: string;
-  };
-  consumer: {
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-  };
-  details: {
-    amount: number;
-    unit_price: number;
-    subtotal: number;
-  };
-  product: {
-    product_name: string;
-    product_description: string;
-    product_price: number;
-    created_at: string;
-    deleted_at: string;
-  };
-  sale: {
-    client_id: string;
-    sale_date: string;
-    total: number;
-  };
-  ticket: {
-    sale_id: string;
-    fecha_emision: string;
-    contenido: string;
-  };
+interface TicketProduct {
+  name: string;
+  price: number;
+  quantity: number;
+  subtotal: number;
 }
 
-const TicketFinal: React.FC<TicketFinalProps> = ({
-  client,
-  consumer,
-  details,
-  product,
-  sale,
-  ticket,
-}) => {
+interface TicketData {
+  client: {
+    name: string;
+    id: string;
+  };
+  products: TicketProduct[];
+  total: number;
+  date: string;
+  saleId: string;
+}
+
+const TicketFinal = () => {
+  const [ticketData, setTicketData] = useState<TicketData | null>(null);
+  const ticketRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const data = localStorage.getItem('currentTicket');
+    if (data) {
+      setTicketData(JSON.parse(data));
+    } else {
+      navigate('/');
+      message.warning('No hay datos de ticket para mostrar');
+    }
+  }, [navigate]);
+
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    if (ticketRef.current) {
+      printWindow?.document.write(`
+        <html>
+          <head>
+            <title>Ticket ${ticketData?.saleId || ''}</title>
+            <style>
+              @page { size: 80mm 100mm; margin: 0; }
+              body { padding: 10px; font-size: 12px; }
+            </style>
+          </head>
+          <body>
+            ${ticketRef.current.innerHTML}
+          </body>
+        </html>
+      `);
+      printWindow?.document.close();
+      printWindow?.focus();
+      setTimeout(() => {
+        printWindow?.print();
+      }, 500);
+    }
+  };
+
+  if (!ticketData) return <div>Cargando ticket...</div>;
+
+  const columns = [
+    {
+      title: 'Producto',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'Cantidad',
+      dataIndex: 'quantity',
+      key: 'quantity',
+    },
+    {
+      title: 'Precio',
+      dataIndex: 'price',
+      key: 'price',
+      render: (price: number) => `$${price.toFixed(2)}`
+    },
+    {
+      title: 'Subtotal',
+      dataIndex: 'subtotal',
+      key: 'subtotal',
+      render: (subtotal: number) => `$${subtotal.toFixed(2)}`
+    },
+  ];
+
   return (
-    <Card title="Ticket Final" style={{ width: 400, margin: "20px auto" }}>
-      {/* Detalles del Cliente */}
-      <Title level={4}>Información del Cliente</Title>
-      <Text strong>Nombre: </Text>
-      <Text>
-        {client.name} {client.lastname}
+<div style={{ padding: '20px', maxWidth: '500px', margin: '0 auto' }}>
+  <div ref={ticketRef} style={{ padding: '20px', border: '1px dashed #ddd', background: 'black' }}>
+    <Title level={4} style={{ textAlign: 'center', color: '#4CAF50' }}>TICKET DE VENTA</Title>
+    <Text strong style={{ color: '#0000FF' }}>No. Ticket: </Text>{ticketData.saleId}<br />
+    <Text strong style={{ color: '#FF5733' }}>Fecha: </Text>{ticketData.date}<br />
+    <Text strong style={{ color: '#8A2BE2' }}>Cliente: </Text>{ticketData.client.name || 'Consumidor final'}<br />
+    <Divider orientation="left" style={{ color: '#008080', borderColor: '#008080' }}>
+    Detalles
+    </Divider>
+
+        <Table 
+          columns={columns} 
+          dataSource={ticketData.products} 
+          pagination={false}
+          size="small"
+          rowKey="name"
+          summary={() => (
+            <Table.Summary.Row>
+              <Table.Summary.Cell index={0} colSpan={3} align="right">
+                <Text strong>Total:</Text>
+              </Table.Summary.Cell>
+              <Table.Summary.Cell index={1}>
+                <Text strong>${ticketData.total.toFixed(2)}</Text>
+              </Table.Summary.Cell>
+            </Table.Summary.Row>
+          )}
+        />
+        
+        <Divider />
+        <Text type="secondary" style={{ textAlign: 'center', display: 'block', color: '#FF6347' }}>
+        ¡Gracias por su compra!
       </Text>
-      <br />
-      <Text strong>Edad: </Text>
-      <Text>{client.age}</Text>
-      <br />
-      <Text strong>Email: </Text>
-      <Text>{client.email}</Text>
-      <Divider />
 
-      {/* Detalles del Consumidor */}
-      <Title level={4}>Información del Consumidor</Title>
-      <Text strong>Nombre: </Text>
-      <Text>{consumer.name}</Text>
-      <br />
-      <Text strong>Email: </Text>
-      <Text>{consumer.email}</Text>
-      <br />
-      <Text strong>Teléfono: </Text>
-      <Text>{consumer.phone}</Text>
-      <br />
-      <Text strong>Dirección: </Text>
-      <Text>{consumer.address}</Text>
-      <Divider />
+      </div>
 
-      {/* Detalles de la Venta */}
-      <Title level={4}>Detalles de la Venta</Title>
-      <Text strong>Cantidad: </Text>
-      <Text>{details.amount}</Text>
-      <br />
-      <Text strong>Precio Unitario: </Text>
-      <Text>${details.unit_price}</Text>
-      <br />
-      <Text strong>Subtotal: </Text>
-      <Text>${details.subtotal}</Text>
-      <Divider />
-
-      {/* Detalles del Producto */}
-      <Title level={4}>Información del Producto</Title>
-      <Text strong>Nombre del Producto: </Text>
-      <Text>{product.product_name}</Text>
-      <br />
-      <Text strong>Descripción: </Text>
-      <Text>{product.product_description}</Text>
-      <br />
-      <Text strong>Precio: </Text>
-      <Text>${product.product_price}</Text>
-      <br />
-      <Text strong>Fecha de Creación: </Text>
-      <Text>{product.created_at}</Text>
-      <br />
-      <Text strong>Fecha de Eliminación: </Text>
-      <Text>{product.deleted_at}</Text>
-      <Divider />
-
-      {/* Detalles de la Venta */}
-      <Title level={4}>Información de la Venta</Title>
-      <Text strong>ID del Cliente: </Text>
-      <Text>{sale.client_id}</Text>
-      <br />
-      <Text strong>Fecha de Venta: </Text>
-      <Text>{sale.sale_date}</Text>
-      <br />
-      <Text strong>Total: </Text>
-      <Text>${sale.total}</Text>
-      <Divider />
-
-      {/* Detalles del Ticket */}
-      <Title level={4}>Información del Ticket</Title>
-      <Text strong>ID de Venta: </Text>
-      <Text>{ticket.sale_id}</Text>
-      <br />
-      <Text strong>Fecha de Emisión: </Text>
-      <Text>{ticket.fecha_emision}</Text>
-      <br />
-      <Text strong>Contenido: </Text>
-      <Text>{ticket.contenido}</Text>
-      <Divider />
-
-      {/* Total */}
-      <Title level={4}>Total</Title>
-      <Text strong>Total a Pagar: </Text>
-      <Text>${sale.total}</Text>
-    </Card>
+      <Space className="no-print" style={{ marginTop: '20px', justifyContent: 'center', width: '100%' }}>
+        <Button 
+          type="primary" 
+          icon={<PrinterOutlined />} 
+          onClick={() => handlePrint()} 
+        >
+          Imprimir Ticket
+        </Button>
+        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/')}>
+          Volver al inicio
+        </Button>
+      </Space>
+    </div>
   );
 };
 
