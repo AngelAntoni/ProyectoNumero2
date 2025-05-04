@@ -96,6 +96,14 @@ const ClientsForm = () => {
           </Button>
           </Link>
         </Form.Item>
+
+        <Form.Item>
+          <Link to="/collections">
+          <Button type="primary">
+            Base de Datos (temporal)
+          </Button>
+          </Link>
+        </Form.Item>
       </Form>
     </Card>
   );
