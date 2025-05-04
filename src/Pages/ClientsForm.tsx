@@ -4,32 +4,61 @@ import { Client } from "../Interfaces/Client";
 import { supabase } from "../supabaseClient";
 import { Link, useNavigate } from "react-router-dom";
 
-//Formulario Clientes
+// Formulario Clientes
 const ClientsForm = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [form] = Form.useForm<Client>();  
-  const navigate = useNavigate();         
+  const navigate = useNavigate();
+
+  // Check if email already exists
+  const checkEmailExists = async (email: string) => {
+    const { data, error } = await supabase
+      .from("client")
+      .select("email")
+      .eq("email", email)
+      .single();
+    
+    return !!data; // Return true if data exists (email found)
+  };
 
   const onFinish = async (values: Client) => {
     setLoading(true);
 
-    // Insertar el nuevo cliente en la base de datos
-    const { error } = await supabase.from("client").insert([values]);
+    try {
+      // First check if email already exists
+      const emailExists = await checkEmailExists(values.email);
+      
+      if (emailExists) {
+        message.error("This email is already registered. Please use a different email.");
+        setLoading(false);
+        return;
+      }
 
-    if (error) {
-      message.error(`Error: ${error.message}`);
-    } else {
-      message.success("¡Cliente agregado con éxito!");
+      // Proceed with insertion if email doesn't exist
+      const { error } = await supabase.from("client").insert([values]);
+
+      if (error) {
+        // Handle other possible errors
+        message.error(`Error: ${error.message}`);
+      } else {
+        message.success("¡Cliente agregado con éxito!");
+        form.resetFields(); // Clear form after successful submission
+        
+        // Redireccionar a la página deseada después de guardar exitosamente
+        navigate("/123"); // Cambia esto a la ruta a la que quieres navegar
+      }
+    } catch (err) {
+      message.error("An unexpected error occurred");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
-
 
   const handleNext = async () => {
     try {
       await form.validateFields(); // Valida todos los campos
-      navigate("/collections");    // Si no hay errores, navega
+      navigate("/123");    // Si no hay errores, navega
     } catch (error) {
       message.warning("Por favor completa todos los campos requeridos");
     }
@@ -37,7 +66,7 @@ const ClientsForm = () => {
 
   return (
     <Card title="Add Client" style={{ width: 400, margin: "20px auto" }}>
-      <Form<Client> layout="vertical" onFinish={onFinish}>
+      <Form<Client> form={form} layout="vertical" onFinish={onFinish}>
         {/* Campo para el nombre */}
         <Form.Item
           label="Name"
@@ -90,18 +119,10 @@ const ClientsForm = () => {
         </Form.Item>
 
         <Form.Item>
-          <Link to="/123">
-          <Button type="primary">
-            Siguiente
-          </Button>
-          </Link>
-        </Form.Item>
-
-        <Form.Item>
           <Link to="/collections">
-          <Button type="primary">
-            Base de Datos (temporal)
-          </Button>
+            <Button type="primary" block>
+              Base de Datos (temporal)
+            </Button>
           </Link>
         </Form.Item>
       </Form>
