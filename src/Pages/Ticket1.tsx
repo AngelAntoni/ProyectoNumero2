@@ -81,8 +81,8 @@ const Ticket1 = () => {
 
       setClients(validClients);
     } catch (error) {
-      message.error('Error al cargar clientes');
-      console.error('Error al cargar clientes:', error);
+      message.error('Error loading clients');
+      console.error('Error loading clients:', error);
     } finally {
       setLoading((prev) => ({ ...prev, clients: false }));
     }
@@ -95,8 +95,8 @@ const Ticket1 = () => {
       if (error) throw error;
       setProducts(data || []);
     } catch (error) {
-      message.error('Error al cargar productos');
-      console.error('Error al cargar productos:', error);
+      message.error('Error loading products');
+      console.error('Error loading products:', error);
     } finally {
       setLoading((prev) => ({ ...prev, products: false }));
     }
@@ -108,25 +108,25 @@ const Ticket1 = () => {
       { id: product.id, description: product.product_name, price: product.product_price, quantity: 1 },
     ]);
   };
-
+  
   const updateQuantity = (id: number, value: number | null) => {
     if (value === null) return;
     setCart((prev) =>
       prev.map((item) => (item.id === id ? { ...item, quantity: value } : item))
     );
   };
-
+  
   const removeFromCart = (id: number) => {
     setCart((prev) => prev.filter((item) => item.id !== id));
   };
-
+  
   const generateTicket = async () => {
     if (!selectedClient) {
-      message.warning('Selecciona un cliente primero');
+      message.warning('Select a client first');
       return;
     }
     if (cart.length === 0) {
-      message.warning('Agrega productos al carrito');
+      message.warning('Add products to the cart');
       return;
     }
     try {
@@ -145,7 +145,7 @@ const Ticket1 = () => {
         .single();
       
       if (saleError) throw saleError;
-
+  
       
       const saleDetails = cart.map((item) => ({
         sale_id: saleData.id,
@@ -154,10 +154,10 @@ const Ticket1 = () => {
         unit_price: item.price,
         subtotal: item.price * item.quantity,
       }));
-
+  
       const { error: detailsError } = await supabase.from('details_sale').insert(saleDetails);
       if (detailsError) throw detailsError;
-
+  
       
       const ticketData: TicketData = {
         client: {
@@ -174,65 +174,65 @@ const Ticket1 = () => {
         date: new Date().toLocaleString(),
         saleId: saleData.id
       };
-
+  
       
       localStorage.setItem('currentTicket', JSON.stringify(ticketData));
       navigate('/TicketFinal');
-
-      message.success('Venta registrada correctamente');
+  
+      message.success('Sale registered successfully');
       setCart([]); 
     } catch (error) {
-      message.error('Error al procesar la venta');
-      console.error('Error al generar ticket:', error);
+      message.error('Error processing the sale');
+      console.error('Error generating ticket:', error);
     }
   };
-
+  
   const productColumns = [
-    { title: 'Producto', dataIndex: 'product_name', key: 'product_name' },
-    { title: 'Precio', dataIndex: 'product_price', key: 'product_price', render: (price: number) => `$${price.toFixed(2)}` },
+    { title: 'Product', dataIndex: 'product_name', key: 'product_name' },
+    { title: 'Price', dataIndex: 'product_price', key: 'product_price', render: (price: number) => `$${price.toFixed(2)}` },
     {
-      title: 'Acción',
+      title: 'Action',
       key: 'action',
       render: (_: any, record: Product) => (
         <Button type="primary" icon={<PlusOutlined />} onClick={() => addToCart(record)}>
-          Agregar
+          Add
         </Button>
       ),
     },
   ];
-
+  
   const cartColumns = [
     {
-      title: 'Cantidad',
+      title: 'Quantity',
       dataIndex: 'quantity',
       key: 'quantity',
       render: (_: any, record: CartItem) => (
         <InputNumber min={1} value={record.quantity} onChange={(value) => updateQuantity(record.id, value)} />
       ),
     },
-    { title: 'Descripción', dataIndex: 'description', key: 'description' },
-    { title: 'Precio Unitario', dataIndex: 'price', key: 'price', render: (price: number) => `$${price.toFixed(2)}` },
+    { title: 'Description', dataIndex: 'description', key: 'description' },
+    { title: 'Unit Price', dataIndex: 'price', key: 'price', render: (price: number) => `$${price.toFixed(2)}` },
     { title: 'Subtotal', key: 'subtotal', render: (_: any, record: CartItem) => `$${(record.price * record.quantity).toFixed(2)}` },
     {
-      title: 'Acción',
+      title: 'Action',
       key: 'action',
       render: (_: any, record: CartItem) => (
-        <Button danger onClick={() => removeFromCart(record.id)}>Eliminar</Button>
+        <Button danger onClick={() => removeFromCart(record.id)}>Remove</Button>
       ),
     },
   ];
-
+  
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
+  
   return (
-    <Card title="Sistema de Ventas" style={{ maxWidth: 1000, margin: '20px auto' }} extra={<Button onClick={() => navigate(-1)}>Volver</Button>}>
+    <Card title="Sales System" style={{ maxWidth: 1000, margin: '20px auto' }} extra={<Button onClick={() => navigate(-1)}>Back</Button>}>
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         <div>
-          <Text strong>Buscar Cliente:</Text>
+          <Text strong>Search Client:</Text>
           <Select
             showSearch
             style={{ width: '100%', marginTop: 8 }}
-            placeholder={loading.clients ? "Cargando clientes..." : "Selecciona un cliente"}
+            placeholder={loading.clients ? "Loading clients..." : "Select a client"}
             loading={loading.clients}
             value={selectedClient}
             onChange={(value) => setSelectedClient(value)}
@@ -241,21 +241,21 @@ const Ticket1 = () => {
               const children = option?.children || '';
               return String(children).toLowerCase().includes(input.toLowerCase());
             }}
-            notFoundContent={loading.clients ? "Cargando..." : "No hay clientes disponibles"}
+            notFoundContent={loading.clients ? "Loading..." : "No clients available"}
           >
             {clients.map((client) => (
               <Select.Option 
                 key={client.id} 
                 value={client.id}
               >
-                {[client.name, client.lastname].filter(Boolean).join(' ') || `Cliente ${client.id.substring(0, 8)}`}
+                {[client.name, client.lastname].filter(Boolean).join(' ') || `Client ${client.id.substring(0, 8)}`}
               </Select.Option>
             ))}
           </Select>
         </div>
-        <Divider orientation="left">Productos Disponibles</Divider>
+        <Divider orientation="left">Available Products</Divider>
         <Table columns={productColumns} dataSource={products} rowKey="id" loading={loading.products} pagination={false} size="small" />
-        <Divider orientation="left">Carrito de Compras</Divider>
+        <Divider orientation="left">Shopping Cart</Divider>
         <Table columns={cartColumns} dataSource={cart} rowKey="id" pagination={false} footer={() => <div style={{ textAlign: 'right' }}><Title level={4}>Total: ${total.toFixed(2)}</Title></div>} />
         <Button 
           type="primary" 
@@ -265,11 +265,12 @@ const Ticket1 = () => {
           size="large"
           loading={loading.clients || loading.products}
         >
-          GENERAR TICKET
+          GENERATE TICKET
         </Button>
       </Space>
     </Card>
   );
-};
-
-export default Ticket1;
+  };
+  
+  export default Ticket1;
+  
